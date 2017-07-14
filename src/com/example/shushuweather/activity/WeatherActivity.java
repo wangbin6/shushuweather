@@ -43,7 +43,7 @@ public class WeatherActivity extends Activity {
 		weatherInfoLayout = (LinearLayout)findViewById(R.id.weather_info_layout);
 		citynm = (TextView)findViewById(R.id.city_name);
 		publishText = (TextView)findViewById(R.id.publish_text);
-		weatherDespText = (TextView)findViewById(R.id.publish_text);
+		weatherDespText = (TextView)findViewById(R.id.weather_desp);
 		tempLow = (TextView)findViewById(R.id.templ1);
 		tempHigh = (TextView)findViewById(R.id.templ2);
 		currentDate = (TextView)findViewById(R.id.current_date);
@@ -111,11 +111,11 @@ public class WeatherActivity extends Activity {
 	{
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		citynm.setText(prefs.getString("citynm", ""));
-		tempLow.setText(prefs.getString("temp_low", ""));
-		tempHigh.setText(prefs.getString("temp_high", ""));
-		
+		tempLow.setText(prefs.getString("temp_low", "")+"¡æ");
+		tempHigh.setText(prefs.getString("temp_high", "")+"¡æ");
+		currentDate.setText(prefs.getString("days", "")+" "+prefs.getString("week", ""));
+		weatherDespText.setText(prefs.getString("weather", ""));
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		citynm.setVisibility(View.VISIBLE);
-		Log.d("weather", prefs.toString());
 	}
 }
