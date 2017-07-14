@@ -13,19 +13,23 @@ import android.app.Activity;
 import android.app.DownloadManager.Query;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ChooseAreaActivity extends Activity {
+public class ChooseAreaActivity extends Activity implements OnClickListener{
 	
 	private TextView titleText;//标题
-	private ListView listView;
+	private ListView listView;//城市列表
+	private Button update_city_btn;//更新城市列表按钮
 	private ArrayAdapter<String> adapter;
 	private ShushuWeatherDB shushuWeatherDB;
 	private List<City> provinceList;//省列表
@@ -34,11 +38,14 @@ public class ChooseAreaActivity extends Activity {
 	private List<String> dataList = new ArrayList<String>();
 	private int currentLevel;//当前选择的市省，市或者县
 	private static final int LEVEL_PROVINCE = 0;//省
-	private static final int LEVEL_CITY = 1;//市
-	private static final int LEVEL_MUNICIPALITY = 2;//区县
-	private ProgressDialog progressDialog;
+	private static final int LEVEL_MUNICIPALITY = 1;//市
+	private static final int LEVEL_COUNTY = 2;//区县
+	private ProgressDialog progressDialog;//加载
+	private City provinceSeletced;//选中的省
+	private City municipalitySelected;//选中的市
+	private City countySelected;//选中的区县
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState){
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -46,6 +53,9 @@ public class ChooseAreaActivity extends Activity {
 		
 		titleText = (TextView)findViewById(R.id.title_text);
 		listView = (ListView)findViewById(R.id.list_view);
+		update_city_btn = (Button)findViewById(R.id.update_city_btn);
+		
+		update_city_btn.setOnClickListener(this);//更新城市列表按钮绑定点击事件
 		
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,dataList);
 		
@@ -57,11 +67,76 @@ public class ChooseAreaActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				// TODO Auto-generated method stub
+				if(currentLevel==LEVEL_PROVINCE)
+				{
+					provinceSeletced = provinceList.get(position);
+					queryMunicipality();//获取该省下属的所有市
+				}
+				else if(currentLevel ==LEVEL_MUNICIPALITY)
+				{
+					municipalitySelected = municipalityList.get(position);
+					queryCounty();//获取该市下属的所有区县
+				}
+				
 				
 			}
 		});
 		
 		queryProvinces();//第一次加载省份数据
+	}
+	
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.update_city_btn:
+			queryProvincesfromServer();
+			break;
+
+		default:
+			break;
+		}
+	}
+	
+	//获取选中市下属的所有区县
+	public void queryCounty()
+	{
+		countyList = shushuWeatherDB.getAllCounty(municipalitySelected.getMunicipality());
+		
+		if(countyList.size()>0)
+		{
+			dataList.clear();
+			
+			for(City county:countyList)
+			{
+				dataList.add(county.getCounty());
+			}
+			
+			adapter.notifyDataSetChanged();
+			listView.setSelection(0);
+			titleText.setText(municipalitySelected.getMunicipality());
+		}
+	}
+	
+	//获取选中省份下属的所有市
+	public void queryMunicipality()
+	{
+		municipalityList = shushuWeatherDB.getAllMunicipality(provinceSeletced.getProvince());
+		
+		if(municipalityList.size()>0)
+		{
+			dataList.clear();
+			
+			for(City municipality:municipalityList)
+			{
+				dataList.add(municipality.getMunicipality());
+			}
+			
+			adapter.notifyDataSetChanged();
+			listView.setSelection(0);
+			titleText.setText(provinceSeletced.getProvince());
+			currentLevel = LEVEL_MUNICIPALITY;
+		}
 	}
 	
 	//获取所有的中国的省
@@ -79,7 +154,7 @@ public class ChooseAreaActivity extends Activity {
 			}
 			
 			adapter.notifyDataSetChanged();
-			listView.setSelection(0);
+			listView.setSelection(0);//列表移动到指定的Position处
 			titleText.setText("中国");
 			currentLevel = LEVEL_PROVINCE;
 		}
@@ -147,6 +222,24 @@ public class ChooseAreaActivity extends Activity {
 		if(progressDialog!=null)
 		{
 			progressDialog.dismiss();
+		}
+	}
+	
+	//重写Back按键事件，根据当前的级别判断，此时应该返回省，市，区县列表还是退出
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		if(currentLevel==LEVEL_MUNICIPALITY)
+		{
+			queryProvinces();
+		}
+		else if(currentLevel==LEVEL_COUNTY)
+		{
+			queryMunicipality();
+		}
+		else
+		{
+			finish();
 		}
 	}
 }

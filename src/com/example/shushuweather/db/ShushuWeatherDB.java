@@ -15,6 +15,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class ShushuWeatherDB {
 	public static final String DB_NAME = "shushu_weather";//数据库名
@@ -42,22 +43,46 @@ public class ShushuWeatherDB {
 		return shushuWeatherDB;
 	}
 	
+	/*
+	 * 检测城市是否存在
+	 * 存在返回true，不存在返回false
+	 * */
+	public boolean checkCityExist(String cityid)
+	{
+		Cursor cursor = db.query(TB_CITY, new String[]{"id"},"cityid=?", new String[]{cityid}, null, null, null);
+		
+		if(cursor.getCount()>0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
 	/*将城市信息存入city表中*/
 	public void saveCity(City city)
 	{
 		if(city != null)
 		{
-			ContentValues values = new ContentValues();
+			String cityid = city.getCityid();
+			boolean isExist = checkCityExist(cityid);
 			
-			values.put("weaid", city.getWeaid());
-			values.put("citynm", city.getCitynm());
-			values.put("cityno", city.getCityno());
-			values.put("cityid", city.getCityid());
-			values.put("province", city.getProvince());
-			values.put("municipality", city.getMunicipality());
-			values.put("county", city.getCounty());
-			
-			db.insert(TB_CITY, null, values);
+			if(!isExist)
+			{
+				ContentValues values = new ContentValues();
+				
+				values.put("weaid", city.getWeaid());
+				values.put("citynm", city.getCitynm());
+				values.put("cityno", city.getCityno());
+				values.put("cityid", city.getCityid());
+				values.put("province", city.getProvince());
+				values.put("municipality", city.getMunicipality());
+				values.put("county", city.getCounty());
+				
+				db.insert(TB_CITY, null, values);
+			}
 		}
 	}
 	
@@ -92,7 +117,7 @@ public class ShushuWeatherDB {
 	{
 		List<City> list = new ArrayList<City>();
 		
-		Cursor cursor = db.query(TB_CITY, null, "province=?", new String[]{provincenm}, null, null, null);
+		Cursor cursor = db.query(TB_CITY, null, "province=?", new String[]{provincenm}, "municipality", null, null);
 		
 		if(cursor.moveToFirst())
 		{
@@ -124,8 +149,7 @@ public class ShushuWeatherDB {
 		{
 			do{
 				City city = new City();
-				
-				city.setMunicipality(cursor.getString(cursor.getColumnIndex("county")));
+				city.setCounty(cursor.getString(cursor.getColumnIndex("county")));
 				
 				list.add(city);
 			}while(cursor.moveToNext());

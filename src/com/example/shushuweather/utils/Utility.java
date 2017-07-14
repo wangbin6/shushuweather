@@ -27,17 +27,21 @@ public class Utility {
 				for(int i=1;i<=results.size();i++)
 				{
 					JSONObject res = JSON.parseObject(results.getString(""+i));
-					
-					City city = new City();
-					city.setCityid(res.getString("cityid"));
-					city.setCitynm(res.getString("citynm"));
-					city.setCityno(res.getString("cityno"));
-					city.setWeaid(res.getString("weaid"));
-					city.setProvince(res.getString("area_1"));
-					city.setMunicipality(res.getString("area_2"));
-					city.setCounty(res.getString("area_3"));
-					
-					shushuWeatherDB.saveCity(city);
+					if(res!=null)
+					{
+						City city = new City();
+						city.setCityid(res.getString("cityid"));
+						city.setCitynm(res.getString("citynm"));
+						city.setCityno(res.getString("cityno"));
+						city.setWeaid(res.getString("weaid"));
+						city.setProvince(res.getString("area_1"));
+						city.setMunicipality(res.getString("area_2"));
+						city.setCounty(res.getString("area_3"));
+						
+						shushuWeatherDB.saveCity(city);
+						
+						Log.d("saveCity", "cityid:"+res.getString("cityid"));
+					}
 				}
 				
 				return true;
