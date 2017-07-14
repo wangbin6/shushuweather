@@ -14,7 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class ShushuWeatherOpenHelper extends SQLiteOpenHelper {
 	
 	//创建城市列表表cities的SQL语句
-	public static final String CREATE_CITY = "CREATE TABLE city (id int primary key autoincrement,weaid varchar(20),cityid varchar(25),cityno varchar(50),province varchar(20),municipality varchar(20),county varchar(25))"; 
+	public static final String CREATE_CITY = "CREATE TABLE city (id integer primary key autoincrement,weaid varchar(20),cityid varchar(25),cityno varchar(50),citynm varchar(20),province varchar(20),municipality varchar(20),county varchar(25))"; 
 	
 	public ShushuWeatherOpenHelper(Context context, String name, CursorFactory factory, int version) {
 		super(context, name, factory, version);

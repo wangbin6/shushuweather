@@ -6,6 +6,7 @@ import com.example.shushuweather.db.ShushuWeatherDB;
 import com.example.shushuweather.models.City;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 public class Utility {
 	
@@ -13,16 +14,16 @@ public class Utility {
 	 * 解析处理服务器返回的城市列表信息
 	 * 
 	 * */
-	public synchronized static boolean handleCityResponse(ShushuWeatherDB shushuWeatherDB,String response
-			){
+	public synchronized static boolean handleCityResponse(ShushuWeatherDB shushuWeatherDB,String response){
 		if(!TextUtils.isEmpty(response))
 		{
 			JSONObject jsonObject = JSON.parseObject(response);
+			
 			//判断是否成功
-			if(jsonObject.getString("success")=="1")
+			if(jsonObject.getInteger("success")==1)
 			{
 				JSONObject results = JSON.parseObject(jsonObject.getString("result"));
-				
+
 				for(int i=1;i<=results.size();i++)
 				{
 					JSONObject res = JSON.parseObject(results.getString(""+i));
@@ -38,15 +39,17 @@ public class Utility {
 					
 					shushuWeatherDB.saveCity(city);
 				}
+				
+				return true;
 			}
 			else
 			{
 				return false;
 			}
-			
-			return true;
 		}
-		
-		return false;
+		else
+		{
+			return false;
+		}
 	}
 }

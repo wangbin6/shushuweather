@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import android.util.Log;
+
 /*
  * 网络访问类
  * */
@@ -38,6 +40,7 @@ public class HttpUtil {
 					
 					if(listener!=null)
 					{
+						//Log.d("HttpUtil", response.toString());
 						//回调onFinish方法
 						listener.onFinish(response.toString());
 					}
