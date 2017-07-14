@@ -66,7 +66,7 @@ public class ShushuWeatherDB {
 	{
 		List<City> list = new ArrayList<City>();
 		
-		Cursor cursor = db.query(TB_CITY, null, null, null, null, null, null);
+		Cursor cursor = db.query(TB_CITY, null, null, null, "province", null, null);
 		
 		if(cursor.moveToFirst())
 		{
