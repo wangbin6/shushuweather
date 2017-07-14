@@ -12,7 +12,10 @@ import com.example.shushuweather.R;
 import android.app.Activity;
 import android.app.DownloadManager.Query;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -48,6 +51,17 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 	protected void onCreate(Bundle savedInstanceState){
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		//如果之前获取过天气信息则直接跳转天气
+		if(prefs.getBoolean("city_selected", false))
+		{
+			Intent intent = new Intent(this,WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);
 		
@@ -76,6 +90,15 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 				{
 					municipalitySelected = municipalityList.get(position);
 					queryCounty();//获取该市下属的所有区县
+				}
+				else if(currentLevel ==LEVEL_COUNTY)
+				{
+					String county = countyList.get(position).getCounty();
+					
+					Intent intent = new Intent(ChooseAreaActivity.this,WeatherActivity.class);
+					intent.putExtra("county", county);
+					startActivity(intent);
+					finish();
 				}
 				
 				
@@ -115,6 +138,7 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);
 			titleText.setText(municipalitySelected.getMunicipality());
+			currentLevel =LEVEL_COUNTY;
 		}
 	}
 	

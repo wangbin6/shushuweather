@@ -1,10 +1,16 @@
 package com.example.shushuweather.utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.example.shushuweather.db.ShushuWeatherDB;
 import com.example.shushuweather.models.City;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -19,7 +25,7 @@ public class Utility {
 		{
 			JSONObject jsonObject = JSON.parseObject(response);
 			
-			//判断是否成功
+			//判断json数据是否成功
 			if(jsonObject.getInteger("success")==1)
 			{
 				JSONObject results = JSON.parseObject(jsonObject.getString("result"));
@@ -55,5 +61,68 @@ public class Utility {
 		{
 			return false;
 		}
+	}
+	
+	/**
+	 * 解析天气信息json
+	 * @author Administrator
+	 */
+	public static void handleWeatherResponse(Context context,String response)
+	{
+		try
+		{
+			JSONObject jsonObject = JSON.parseObject(response);
+			
+			//判断返回的json数据是否成功
+			if(jsonObject.getInteger("success")==1)
+			{
+				JSONObject result = JSONObject.parseObject(jsonObject.getString("result"));
+				if(result!=null)
+				{
+					String days = result.getString("days");
+					String week = result.getString("week");
+					String citynm = result.getString("citynm");
+					String temperature = result.getString("temperature");
+					String temperature_curr = result.getString("temperature_curr");
+					String humidity = result.getString("humidity");
+					String weather = result.getString("weather");
+					String weather_curr = result.getString("weather_curr");
+					String wind = result.getString("wind");
+					String winp = result.getString("winp");
+					String temp_high = result.getString("temp_high");
+					String temp_low = result.getString("temp_low");
+					String temp_curr = result.getString("temp_curr");
+					
+					saveWeatherInfo(context,days,week,citynm,temperature,temperature_curr,humidity,weather,weather_curr,wind,winp,temp_high,temp_low,temp_curr);
+				}
+			}
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+	
+	public static void saveWeatherInfo(Context context,String days,String week,String citynm,String temperature,String temperature_curr,String humidity,String weather,String weather_curr,String wind,String winp,String temp_high,String temp_low,String temp_curr)
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日",Locale.CHINA);
+		
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		
+		editor.putBoolean("city_selected", true);
+		editor.putString("days", days);
+		editor.putString("week", week);
+		editor.putString("citynm", citynm);
+		editor.putString("temperature", temperature);
+		editor.putString("temperature_curr", temperature_curr);
+		editor.putString("humidity", humidity);
+		editor.putString("weather", weather);
+		editor.putString("weather_curr", weather_curr);
+		editor.putString("wind", wind);
+		editor.putString("winp", winp);
+		editor.putString("temp_high", temp_high);
+		editor.putString("temp_low", temp_low);
+		editor.putString("temp_curr", temp_curr);
+		
+		editor.commit();
 	}
 }

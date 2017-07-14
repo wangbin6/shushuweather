@@ -156,5 +156,31 @@ public class ShushuWeatherDB {
 		}
 		
 		return list;
-	}	
+	}
+	
+	/**
+	 * 根据城市名获取天气ID
+	 * */
+	public String getWeatherId(String county)
+	{
+		Cursor cursor = db.query(TB_CITY, new String[]{"weaid"}, "county=?", new String[]{county}, null, null, null);
+		
+		if(cursor.moveToFirst())
+		{
+			String weaid = cursor.getString(cursor.getColumnIndex("weaid"));
+			
+			if(weaid!=null)
+			{
+				return weaid;
+			}
+			else
+			{
+				return "";
+			}
+		}
+		else
+		{
+			return "";
+		}
+	}
 }
