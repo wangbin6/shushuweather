@@ -2,6 +2,7 @@ package com.example.shushuweather.activity;
 
 import com.example.shushuweather.R;
 import com.example.shushuweather.db.ShushuWeatherDB;
+import com.example.shushuweather.service.AutoUpdateWeather;
 import com.example.shushuweather.utils.HttpCallbackListener;
 import com.example.shushuweather.utils.HttpUtil;
 import com.example.shushuweather.utils.Utility;
@@ -148,5 +149,8 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		publishText.setText("今天"+prefs.getString("publish_time", "")+"发布");
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		citynm.setVisibility(View.VISIBLE);
+		
+		Intent i = new Intent(WeatherActivity.this,AutoUpdateWeather.class);
+		startService(i);
 	}
 }

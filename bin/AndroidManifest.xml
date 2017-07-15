@@ -23,8 +23,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity 
-            android:name="com.example.shushuweather.activity.WeatherActivity"></activity>
+        <activity android:name="com.example.shushuweather.activity.WeatherActivity"></activity>
+        <service android:name="com.example.shushuweather.service.AutoUpdateWeather"/>
+        <receiver android:name="com.example.shushuweather.receiver.AutoUpdateReceiver"/>
     </application>
 
 </manifest>
