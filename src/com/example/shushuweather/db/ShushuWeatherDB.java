@@ -28,7 +28,7 @@ public class ShushuWeatherDB {
 	private ShushuWeatherDB(Context context) {
 		// TODO Auto-generated constructor stub
 		ShushuWeatherOpenHelper dbHelper = new ShushuWeatherOpenHelper(context, DB_NAME, null, DB_VERSION);
-		
+		Log.d("ShushuWeatherDB", "将构造方法私有化");
 		db = dbHelper.getWritableDatabase();
 	}
 	

@@ -1,6 +1,7 @@
 package com.example.shushuweather.utils;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import com.alibaba.fastjson.JSON;
@@ -79,6 +80,7 @@ public class Utility {
 				JSONObject result = JSONObject.parseObject(jsonObject.getString("result"));
 				if(result!=null)
 				{
+					String weaid = result.getString("weaid");
 					String days = result.getString("days");
 					String week = result.getString("week");
 					String citynm = result.getString("citynm");
@@ -93,7 +95,7 @@ public class Utility {
 					String temp_low = result.getString("temp_low");
 					String temp_curr = result.getString("temp_curr");
 					
-					saveWeatherInfo(context,days,week,citynm,temperature,temperature_curr,humidity,weather,weather_curr,wind,winp,temp_high,temp_low,temp_curr);
+					saveWeatherInfo(context,weaid,days,week,citynm,temperature,temperature_curr,humidity,weather,weather_curr,wind,winp,temp_high,temp_low,temp_curr);
 				}
 			}
 		}catch (Exception e) {
@@ -102,13 +104,14 @@ public class Utility {
 		}
 	}
 	
-	public static void saveWeatherInfo(Context context,String days,String week,String citynm,String temperature,String temperature_curr,String humidity,String weather,String weather_curr,String wind,String winp,String temp_high,String temp_low,String temp_curr)
+	public static void saveWeatherInfo(Context context,String weaid,String days,String week,String citynm,String temperature,String temperature_curr,String humidity,String weather,String weather_curr,String wind,String winp,String temp_high,String temp_low,String temp_curr)
 	{
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日",Locale.CHINA);
+		SimpleDateFormat sdf = new SimpleDateFormat("h时m分",Locale.CHINA);
 		
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		
 		editor.putBoolean("city_selected", true);
+		editor.putString("weaid", weaid);
 		editor.putString("days", days);
 		editor.putString("week", week);
 		editor.putString("citynm", citynm);
@@ -122,6 +125,7 @@ public class Utility {
 		editor.putString("temp_high", temp_high);
 		editor.putString("temp_low", temp_low);
 		editor.putString("temp_curr", temp_curr);
+		editor.putString("publish_time", sdf.format(new Date()));
 		
 		editor.commit();
 	}

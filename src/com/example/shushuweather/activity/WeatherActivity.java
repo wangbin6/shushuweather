@@ -7,6 +7,7 @@ import com.example.shushuweather.utils.HttpUtil;
 import com.example.shushuweather.utils.Utility;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,12 +15,13 @@ import android.provider.ContactsContract.Presence;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements OnClickListener{
 	
 	private LinearLayout weatherInfoLayout;
 	private TextView citynm;//显示城市名
@@ -31,6 +33,7 @@ public class WeatherActivity extends Activity {
 	private Button switchCityBtn;//切换城市按钮
 	private Button refreshWeather;//更新天气按钮
 	private ShushuWeatherDB shushuWeatherDB;
+	private String weaid,county;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +50,14 @@ public class WeatherActivity extends Activity {
 		tempLow = (TextView)findViewById(R.id.templ1);
 		tempHigh = (TextView)findViewById(R.id.templ2);
 		currentDate = (TextView)findViewById(R.id.current_date);
+		switchCityBtn = (Button)findViewById(R.id.switch_city);
+		refreshWeather = (Button)findViewById(R.id.refresh_weather);
+		
+		switchCityBtn.setOnClickListener(this);
+		refreshWeather.setOnClickListener(this);
 		shushuWeatherDB = ShushuWeatherDB.getinstance(this);
 		
-		String county = getIntent().getStringExtra("county");
+		county = getIntent().getStringExtra("county");
 
 		if(!TextUtils.isEmpty(county))
 		{
@@ -57,13 +65,33 @@ public class WeatherActivity extends Activity {
 			publishText.setText("同步中...");
 			weatherInfoLayout.setVisibility(View.INVISIBLE);
 			citynm.setVisibility(View.INVISIBLE);
-			String weaid = shushuWeatherDB.getWeatherId(county);
+			weaid = shushuWeatherDB.getWeatherId(county);
 			queryWeatherCounty(weaid);
 		}
 		else
 		{
 			//没有则直接显示本地天气
 			showWeather();
+		}
+	}
+	
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.switch_city:
+			Intent intent = new Intent(this,ChooseAreaActivity.class);
+			intent.putExtra("from_weather_activity", true);
+			startActivity(intent);
+			finish();
+			break;
+		case R.id.refresh_weather:
+			publishText.setText("同步中...");
+			//String weaid = shushuWeatherDB.getWeatherId(county);
+			queryWeatherCounty(weaid);
+			break;
+		default:
+			break;
 		}
 	}
 	
@@ -110,11 +138,14 @@ public class WeatherActivity extends Activity {
 	private void showWeather()
 	{
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		weaid = prefs.getString("weaid", "");
 		citynm.setText(prefs.getString("citynm", ""));
 		tempLow.setText(prefs.getString("temp_low", "")+"℃");
 		tempHigh.setText(prefs.getString("temp_high", "")+"℃");
 		currentDate.setText(prefs.getString("days", "")+" "+prefs.getString("week", ""));
 		weatherDespText.setText(prefs.getString("weather", ""));
+		publishText.setText("今天"+prefs.getString("publish_time", "")+"发布");
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		citynm.setVisibility(View.VISIBLE);
 	}

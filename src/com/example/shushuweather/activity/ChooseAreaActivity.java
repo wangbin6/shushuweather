@@ -47,6 +47,7 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 	private City provinceSeletced;//选中的省
 	private City municipalitySelected;//选中的市
 	private City countySelected;//选中的区县
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		// TODO Auto-generated method stub
@@ -54,14 +55,20 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
-		//如果之前获取过天气信息则直接跳转天气
-		if(prefs.getBoolean("city_selected", false))
+		//是否从WeatherActivity活动中过来;true表示是
+		boolean from_weather_activity = getIntent().getBooleanExtra("from_weather_activity", false);
+		if(!from_weather_activity)
 		{
-			Intent intent = new Intent(this,WeatherActivity.class);
-			startActivity(intent);
-			finish();
-			return;
+			//如果之前获取过天气信息则直接跳转天气
+			if(prefs.getBoolean("city_selected", false))
+			{
+				Intent intent = new Intent(this,WeatherActivity.class);
+				startActivity(intent);
+				finish();
+				return;
+			}
 		}
+
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);
 		

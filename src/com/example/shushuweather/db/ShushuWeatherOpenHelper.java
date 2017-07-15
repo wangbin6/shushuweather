@@ -24,7 +24,14 @@ public class ShushuWeatherOpenHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// TODO Auto-generated method stub
-		db.execSQL(CREATE_CITY);
+		try {
+			db.execSQL(CREATE_CITY);
+			//db.execSQL(".import file:///android_asset/city.sql city");
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+
 	}
 
 	@Override
