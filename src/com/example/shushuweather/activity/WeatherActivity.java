@@ -33,7 +33,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private TextView currentDate;//显示当前日期
 	private Button switchCityBtn;//切换城市按钮
 	private Button refreshWeather;//更新天气按钮
-	private String weaid,county;
+	private String county;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +74,14 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	}
 	
 	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		Intent i = new Intent(WeatherActivity.this,AutoUpdateWeather.class);
+		stopService(i);
+	}
+	
+	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
@@ -98,7 +106,9 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		if(county!="")
 		{
 			county = Utility.UrlTranslateToUTF(county);
-			String address = "http://api.k780.com/?app=weather.today&weaid="+county+"&appkey=26776&sign=42d21df6df1c8068dbd225379b10ac98&format=json";
+			
+			//京东Api
+			String address = "https://way.jd.com/he/freeweather?city="+county+"&appkey=3258aaecb16449111594ef945633cdf6";
 			
 			queryFromServer(address);
 		}
@@ -112,7 +122,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			@Override
 			public void onFinish(String response) {
 				// TODO Auto-generated method stub
-				Utility.handleWeatherResponse(WeatherActivity.this, response);
+				Utility.handleJDWeatherResponse(WeatherActivity.this, response);
 				
 				runOnUiThread(new Runnable() {
 					
@@ -138,12 +148,12 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		county = prefs.getString("county", "");
-		citynm.setText(prefs.getString("citynm", ""));
-		tempLow.setText(prefs.getString("temp_low", "")+"℃");
-		tempHigh.setText(prefs.getString("temp_high", "")+"℃");
-		currentDate.setText(prefs.getString("days", "")+" "+prefs.getString("week", ""));
-		weatherDespText.setText(prefs.getString("weather", ""));
-		publishText.setText("今天"+prefs.getString("publish_time", "")+"发布");
+		citynm.setText(county);
+		tempLow.setText(prefs.getString("tmp", "")+"℃");
+		tempHigh.setText(prefs.getString("dir", ""));
+		currentDate.setText(prefs.getString("date", "")+" "+prefs.getString("week", ""));
+		weatherDespText.setText(prefs.getString("txt", ""));
+		publishText.setText("今天"+prefs.getString("publishtime", "")+"发布");
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		citynm.setVisibility(View.VISIBLE);
 		

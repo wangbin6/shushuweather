@@ -191,7 +191,7 @@ public class Utility {
 					String temp_low = result.getString("temp_low");
 					String temp_curr = result.getString("temp_curr");
 					
-					saveWeatherInfo(context,weaid,days,week,citynm,temperature,temperature_curr,humidity,weather,weather_curr,wind,winp,temp_high,temp_low,temp_curr);
+					//saveWeatherInfo(context,weaid,days,week,citynm,temperature,temperature_curr,humidity,weather,weather_curr,wind,winp,temp_high,temp_low,temp_curr);
 				}
 			}
 		}catch (Exception e) {
@@ -200,28 +200,91 @@ public class Utility {
 		}
 	}
 	
-	public static void saveWeatherInfo(Context context,String weaid,String days,String week,String citynm,String temperature,String temperature_curr,String humidity,String weather,String weather_curr,String wind,String winp,String temp_high,String temp_low,String temp_curr)
+	/**
+	 * 解析jd天气信息json
+	 * @author Administrator
+	 */
+	public static void handleJDWeatherResponse(Context context,String response)
 	{
-		SimpleDateFormat sdf = new SimpleDateFormat("h时m分",Locale.CHINA);
+		try
+		{
+			JSONObject jsonObject = JSON.parseObject(response);
+			
+			//判断返回的json数据是否成功
+			if(jsonObject.getInteger("code")==10000)
+			{
+				JSONObject result = JSONObject.parseObject(jsonObject.getString("result"));
+				
+				JSONArray result2 = JSONArray.parseArray(result.getString("HeWeather5"));
+				
+				JSONObject result3 = JSONObject.parseObject((result2.get(0)).toString());
+				
+				JSONObject result4 = JSONObject.parseObject(result3.getString("now"));
+				
+				JSONObject result5 = JSONObject.parseObject(result4.getString("cond"));//天气状况
+				
+				JSONObject result6 = JSONObject.parseObject(result4.getString("wind"));//风力状况
+				
+				JSONObject result7 = JSONObject.parseObject(result3.getString("basic"));//城市名称
+				
+				String county = result7.getString("city");
+				if(result4!=null)
+				{
+					String hum = result4.getString("hum");//湿度
+					String vis = result4.getString("vis");//能见度
+					String pres = result4.getString("pres");//大气压强
+					String pcpn = result4.getString("pcpn");//降水量
+					String fl = result4.getString("fl");//感冒指数
+					String tmp = result4.getString("tmp");//温度
+					String txt="",sc="",spd="",deg="",dir="";
+					
+					if(result5!=null)
+					{
+						txt = result5.getString("txt");//天气状况
+					}
+					
+					if(result6!=null)
+					{
+						sc = result6.getString("sc");//风力等级
+						spd = result6.getString("spd");//风速
+						deg = result6.getString("deg");//风向(角度)
+						dir = result6.getString("dir");//风向
+					}
+					
+					saveWeatherInfo(context,hum,vis,pres,pcpn,fl,tmp,txt,sc,spd,deg,dir,county);
+				}
+			}
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+	}
+	
+	//储存天气到本地
+	public static void saveWeatherInfo(Context context,String hum,String vis,String pres,String pcpn,String fl,String tmp,String txt,String sc,String spd,String deg,String dir,String county)
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("H时m分",Locale.CHINA);
+		SimpleDateFormat date = new SimpleDateFormat("yyyy年MM月dd日",Locale.CHINA);
+		SimpleDateFormat week = new SimpleDateFormat("EEEE",Locale.CHINA);
 		
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		
 		editor.putBoolean("city_selected", true);
-		editor.putString("weaid", weaid);
-		editor.putString("days", days);
-		editor.putString("week", week);
-		editor.putString("citynm", citynm);
-		editor.putString("temperature", temperature);
-		editor.putString("temperature_curr", temperature_curr);
-		editor.putString("humidity", humidity);
-		editor.putString("weather", weather);
-		editor.putString("weather_curr", weather_curr);
-		editor.putString("wind", wind);
-		editor.putString("winp", winp);
-		editor.putString("temp_high", temp_high);
-		editor.putString("temp_low", temp_low);
-		editor.putString("temp_curr", temp_curr);
-		editor.putString("publish_time", sdf.format(new Date()));
+		editor.putString("hum", hum);
+		editor.putString("vis", vis);
+		editor.putString("pres", pres);
+		editor.putString("pcpn", pcpn);
+		editor.putString("fl", fl);
+		editor.putString("tmp", tmp);
+		editor.putString("txt", txt);
+		editor.putString("sc", sc);
+		editor.putString("spd", spd);
+		editor.putString("deg", deg);
+		editor.putString("dir", dir);
+		editor.putString("county", county);
+		editor.putString("publishtime", sdf.format(new Date()));
+		editor.putString("date", date.format(new Date()));
+		editor.putString("week", week.format(new Date()));
 		
 		editor.commit();
 	}
