@@ -14,7 +14,9 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
+/**
+ * @deprecated 自动更新天气服务
+ * */
 public class AutoUpdateWeather extends Service {
 
 	@Override
@@ -51,6 +53,9 @@ public class AutoUpdateWeather extends Service {
 			return super.onStartCommand(intent, flags, startId);
 	}
 	
+	/**
+	 * 请求数据更新天气信息
+	 * */
 	private void updateWeather()
 	{
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);

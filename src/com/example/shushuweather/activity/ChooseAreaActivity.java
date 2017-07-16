@@ -1,10 +1,14 @@
 package com.example.shushuweather.activity;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.example.shushuweather.db.ShushuWeatherDB;
 import com.example.shushuweather.models.City;
+import com.example.shushuweather.models.County;
+import com.example.shushuweather.models.Province;
 import com.example.shushuweather.utils.HttpCallbackListener;
 import com.example.shushuweather.utils.HttpUtil;
 import com.example.shushuweather.utils.Utility;
@@ -32,21 +36,21 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 	
 	private TextView titleText;//标题
 	private ListView listView;//城市列表
-	private Button update_city_btn;//更新城市列表按钮
+	//private Button update_city_btn;//更新城市列表按钮
 	private ArrayAdapter<String> adapter;
 	private ShushuWeatherDB shushuWeatherDB;
-	private List<City> provinceList;//省列表
-	private List<City> municipalityList;//市列表
-	private List<City> countyList;//区县列表
+	private List<Province> provinceList;//省列表
+	private List<City> cityList;//市列表
+	private List<County> countyList;//区县列表
 	private List<String> dataList = new ArrayList<String>();
 	private int currentLevel;//当前选择的市省，市或者县
 	private static final int LEVEL_PROVINCE = 0;//省
 	private static final int LEVEL_MUNICIPALITY = 1;//市
 	private static final int LEVEL_COUNTY = 2;//区县
 	private ProgressDialog progressDialog;//加载
-	private City provinceSeletced;//选中的省
-	private City municipalitySelected;//选中的市
-	private City countySelected;//选中的区县
+	private Province provinceSeletced;//选中的省
+	private City citySelected;//选中的市
+	private County countySelected;//选中的区县
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
@@ -74,9 +78,9 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 		
 		titleText = (TextView)findViewById(R.id.title_text);
 		listView = (ListView)findViewById(R.id.list_view);
-		update_city_btn = (Button)findViewById(R.id.update_city_btn);
+		//update_city_btn = (Button)findViewById(R.id.update_city_btn);
 		
-		update_city_btn.setOnClickListener(this);//更新城市列表按钮绑定点击事件
+		//update_city_btn.setOnClickListener(this);//更新城市列表按钮绑定点击事件
 		
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,dataList);
 		
@@ -91,16 +95,16 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 				if(currentLevel==LEVEL_PROVINCE)
 				{
 					provinceSeletced = provinceList.get(position);
-					queryMunicipality();//获取该省下属的所有市
+					queryCity();//获取该省下属的所有市
 				}
 				else if(currentLevel ==LEVEL_MUNICIPALITY)
 				{
-					municipalitySelected = municipalityList.get(position);
+					citySelected = cityList.get(position);
 					queryCounty();//获取该市下属的所有区县
 				}
 				else if(currentLevel ==LEVEL_COUNTY)
 				{
-					String county = countyList.get(position).getCounty();
+					String county = countyList.get(position).getCountynm();
 					
 					Intent intent = new Intent(ChooseAreaActivity.this,WeatherActivity.class);
 					intent.putExtra("county", county);
@@ -119,9 +123,9 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
-		case R.id.update_city_btn:
+		/*case R.id.update_city_btn:
 			queryProvincesfromServer();
-			break;
+			break;*/
 
 		default:
 			break;
@@ -131,42 +135,49 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 	//获取选中市下属的所有区县
 	public void queryCounty()
 	{
-		countyList = shushuWeatherDB.getAllCounty(municipalitySelected.getMunicipality());
-		
+		countyList = shushuWeatherDB.getAllCounty(citySelected.getCitynm());
 		if(countyList.size()>0)
 		{
 			dataList.clear();
 			
-			for(City county:countyList)
+			for(County county:countyList)
 			{
-				dataList.add(county.getCounty());
+				dataList.add(county.getCountynm());
 			}
 			
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);
-			titleText.setText(municipalitySelected.getMunicipality());
+			titleText.setText(citySelected.getCitynm());
 			currentLevel =LEVEL_COUNTY;
+		}
+		else
+		{
+			queryCountyFromServer();//从服务器获取区县信息
 		}
 	}
 	
 	//获取选中省份下属的所有市
-	public void queryMunicipality()
+	public void queryCity()
 	{
-		municipalityList = shushuWeatherDB.getAllMunicipality(provinceSeletced.getProvince());
-		
-		if(municipalityList.size()>0)
+		cityList = shushuWeatherDB.getAllCity(provinceSeletced.getProvincenm());
+
+		if(cityList.size()>0)
 		{
 			dataList.clear();
 			
-			for(City municipality:municipalityList)
+			for(City city:cityList)
 			{
-				dataList.add(municipality.getMunicipality());
+				dataList.add(city.getCitynm());
 			}
 			
 			adapter.notifyDataSetChanged();
 			listView.setSelection(0);
-			titleText.setText(provinceSeletced.getProvince());
+			titleText.setText(provinceSeletced.getProvincenm());
 			currentLevel = LEVEL_MUNICIPALITY;
+		}
+		else
+		{
+			queryCityFromServer();
 		}
 	}
 	
@@ -179,9 +190,9 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 		{
 			dataList.clear();
 			
-			for(City province:provinceList)
+			for(Province province:provinceList)
 			{
-				dataList.add(province.getProvince());
+				dataList.add(province.getProvincenm());
 			}
 			
 			adapter.notifyDataSetChanged();
@@ -191,16 +202,118 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 		}
 		else
 		{
-			//Toast.makeText(ChooseAreaActivity.this, "暂无省份信息", Toast.LENGTH_SHORT).show();
 			queryProvincesfromServer();
 		}
 	}
+
+	//从服务器上获取某省下属县
+	private void queryCountyFromServer()
+	{
+		showProgressDialog();
+		String citynm = citySelected.getCitynm();
+		citynm = Utility.UrlTranslateToUTF(citynm);
+		String address = "http://restapi.amap.com/v3/config/district?keywords="+citynm+"&subdistrict=1&key=8eee051d08bc42cfc33dbd065a87d60e";
+		HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
+			
+			@Override
+			public void onFinish(String response) {
+				// TODO Auto-generated method stub
+				boolean result = false;
+
+				result = Utility.handleCountyResponse(shushuWeatherDB, response);
+				
+				if(result)
+				{
+					//通过runOnUiThread回到主线程处理逻辑
+					runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							closeProgressDialog();
+							queryCounty();
+						}
+					});
+				}
+				else
+				{
+					//通过runOnUiThread回到主线程处理逻辑
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							closeProgressDialog();
+							Toast.makeText(ChooseAreaActivity.this, "获取区县信息失败！", Toast.LENGTH_SHORT).show();
+						}
+					});
+				}
+			}
+			
+			@Override
+			public void onError(Exception e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
 	
-	//从服务器上获取城市列表
+	//从服务器上获取某省下属市
+	private void queryCityFromServer()
+	{
+		showProgressDialog();
+		String provincenm = provinceSeletced.getProvincenm();
+		provincenm = Utility.UrlTranslateToUTF(provincenm);
+		String address = "http://restapi.amap.com/v3/config/district?keywords="+provincenm+"&subdistrict=1&key=8eee051d08bc42cfc33dbd065a87d60e";
+		
+		HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
+			
+			@Override
+			public void onFinish(String response) {
+				// TODO Auto-generated method stub
+				boolean result = false;
+				result = Utility.handleCityResponse(shushuWeatherDB, response);
+				
+				if(result)
+				{
+					//通过runOnUiThread回到主线程处理逻辑
+					runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							closeProgressDialog();
+							queryCity();
+						}
+					});
+				}
+				else
+				{
+					//通过runOnUiThread回到主线程处理逻辑
+					runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							closeProgressDialog();
+							Toast.makeText(ChooseAreaActivity.this, "获取市信息失败！", Toast.LENGTH_SHORT).show();
+						}
+					});
+				}				
+			}
+			
+			@Override
+			public void onError(Exception e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+	
+	//从服务器上获取所有省
 	private void queryProvincesfromServer()
 	{
 		showProgressDialog();
-		String address = "http://api.k780.com/?app=weather.city&cou=1&appkey=26776&sign=42d21df6df1c8068dbd225379b10ac98&format=json";
+		String address = " http://restapi.amap.com/v3/config/district?subdistrict=1&key=8eee051d08bc42cfc33dbd065a87d60e";
 		HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
 			
 			@Override
@@ -208,7 +321,7 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 				// TODO Auto-generated method stub
 				boolean result = false;
 				
-				result = Utility.handleCityResponse(shushuWeatherDB, response);
+				result = Utility.handleProvinceResponse(shushuWeatherDB, response);
 				
 				if(result)
 				{
@@ -223,6 +336,19 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 						}
 					});
 				}
+				else
+				{
+					//通过runOnUiThread回到主线程处理逻辑
+					runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							closeProgressDialog();
+							Toast.makeText(ChooseAreaActivity.this, "获取省信息失败！", Toast.LENGTH_SHORT).show();
+						}
+					});
+				}				
 			}
 			
 			@Override
@@ -266,7 +392,7 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 		}
 		else if(currentLevel==LEVEL_COUNTY)
 		{
-			queryMunicipality();
+			queryCity();
 		}
 		else
 		{

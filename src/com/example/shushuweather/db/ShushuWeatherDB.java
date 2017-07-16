@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.shushuweather.models.City;
+import com.example.shushuweather.models.County;
+import com.example.shushuweather.models.Province;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -20,6 +22,9 @@ import android.util.Log;
 public class ShushuWeatherDB {
 	public static final String DB_NAME = "shushu_weather";//数据库名
 	public static final String TB_CITY = "city";//城市列表表名
+	public static final String TB_CITY_NAME = "acity";//市列表表名
+	public static final String TB_PROVINCE_NAME = "aprovince";//省列表表名
+	public static final String TB_COUNTY_NAME = "acounty";//区县列表表名
 	public static final int DB_VERSION = 1;//数据库版本号
 	private static ShushuWeatherDB shushuWeatherDB;
 	private SQLiteDatabase db;
@@ -61,45 +66,68 @@ public class ShushuWeatherDB {
 		}
 	}
 	
-	/*将城市信息存入city表中*/
-	public void saveCity(City city)
+	/*将省信息存入province表中*/
+	public void saveProvince(Province province)
 	{
-		if(city != null)
+		if(province!=null)
 		{
-			String cityid = city.getCityid();
-			boolean isExist = checkCityExist(cityid);
+			ContentValues values = new ContentValues();
 			
-			if(!isExist)
-			{
-				ContentValues values = new ContentValues();
-				
-				values.put("weaid", city.getWeaid());
-				values.put("citynm", city.getCitynm());
-				values.put("cityno", city.getCityno());
-				values.put("cityid", city.getCityid());
-				values.put("province", city.getProvince());
-				values.put("municipality", city.getMunicipality());
-				values.put("county", city.getCounty());
-				
-				db.insert(TB_CITY, null, values);
-			}
+			values.put("provincenm", province.getProvincenm());
+			
+			db.insert(TB_PROVINCE_NAME, null, values);
 		}
 	}
 	
-	/*读取所有的省份*/
-	public List<City> getAllProvinces()
+	/*将市信息存入city表中*/
+	public void saveCity(City city)
 	{
-		List<City> list = new ArrayList<City>();
+		if(city!=null)
+		{
+			try
+			{
+				ContentValues values = new ContentValues();
+				
+				values.put("provincenm", city.getProvincenm());
+				values.put("citynm", city.getCitynm());
+				
+				db.insert(TB_CITY_NAME, null, values);
+			}catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+
+		}
+	}
+	
+	/*将县信息存入county表中*/
+	public void saveCounty(County county)
+	{
+		if(county!=null)
+		{
+			ContentValues values = new ContentValues();
+			
+			values.put("citynm", county.getCitynm());
+			values.put("countynm", county.getCountynm());
+			
+			db.insert(TB_COUNTY_NAME, null, values);
+		}
+	}	
+	
+	/*读取所有的省份*/
+	public List<Province> getAllProvinces()
+	{
+		List<Province> list = new ArrayList<Province>();
 		
-		Cursor cursor = db.query(TB_CITY, null, null, null, "province", null, null);
+		Cursor cursor = db.query(TB_PROVINCE_NAME, new String[]{"provincenm"}, null, null, null, null, null);
 		
 		if(cursor.moveToFirst())
 		{
 			do{
-				City city = new City();
-				city.setProvince(cursor.getString(cursor.getColumnIndex("province")));
+				Province province = new Province();
+				province.setProvincenm(cursor.getString(cursor.getColumnIndex("provincenm")));
 				
-				list.add(city);
+				list.add(province);
 				
 			}while(cursor.moveToNext());
 		}
@@ -113,18 +141,18 @@ public class ShushuWeatherDB {
 	 * @param String provincenm 省份名称
 	 * @return List list 所有属于该省份的市
 	 * */
-	public List<City> getAllMunicipality(String provincenm)
+	public List<City> getAllCity(String provincenm)
 	{
 		List<City> list = new ArrayList<City>();
 		
-		Cursor cursor = db.query(TB_CITY, null, "province=?", new String[]{provincenm}, "municipality", null, null);
+		Cursor cursor = db.query(TB_CITY_NAME, null, "provincenm=?", new String[]{provincenm}, "citynm", null, null);
 		
 		if(cursor.moveToFirst())
 		{
 			do{
 				City city = new City();
 				
-				city.setMunicipality(cursor.getString(cursor.getColumnIndex("municipality")));
+				city.setCitynm(cursor.getString(cursor.getColumnIndex("citynm")));
 				
 				list.add(city);
 			}while(cursor.moveToNext());
@@ -139,19 +167,19 @@ public class ShushuWeatherDB {
 	 * @param String municipality 市名称
 	 * @return List list 所有属于该市的区县
 	 * */
-	public List<City> getAllCounty(String municipality)
+	public List<County> getAllCounty(String citynm)
 	{
-		List<City> list = new ArrayList<City>();
+		List<County> list = new ArrayList<County>();
 		
-		Cursor cursor = db.query(TB_CITY, null, "municipality=?", new String[]{municipality}, null, null, null);
-		
+		Cursor cursor = db.query(TB_COUNTY_NAME, null, "citynm=?", new String[]{citynm}, null, null, null);
+
 		if(cursor.moveToFirst())
 		{
 			do{
-				City city = new City();
-				city.setCounty(cursor.getString(cursor.getColumnIndex("county")));
+				County county = new County();
+				county.setCountynm(cursor.getString(cursor.getColumnIndex("countynm")));
 				
-				list.add(city);
+				list.add(county);
 			}while(cursor.moveToNext());
 		}
 		

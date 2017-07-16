@@ -1,13 +1,18 @@
 package com.example.shushuweather.utils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.shushuweather.db.ShushuWeatherDB;
 import com.example.shushuweather.models.City;
+import com.example.shushuweather.models.County;
+import com.example.shushuweather.models.Province;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,9 +21,56 @@ import android.text.TextUtils;
 import android.util.Log;
 
 public class Utility {
+
+	/*
+	 * 解析处理服务器返回的县列表信息
+	 * 
+	 * */
+	public synchronized static boolean handleCountyResponse(ShushuWeatherDB shushuWeatherDB,String response){
+		if(!TextUtils.isEmpty(response))
+		{
+			JSONObject jsonObject = JSON.parseObject(response);
+			
+			//判断json数据是否成功
+			if(jsonObject.getInteger("status")==1)
+			{
+				JSONArray results = JSON.parseArray(jsonObject.getString("districts"));
+				
+				JSONObject result2 = JSON.parseObject((results.get(0)).toString());
+				
+				String citynm = result2.getString("name");//县名称
+				
+				JSONArray citys = JSON.parseArray(result2.getString("districts"));
+
+				for(Object city:citys)
+				{
+					if(citys!=null)
+					{
+						JSONObject p = (JSONObject)city;
+						County countyObj = new County();
+						countyObj.setCountynm(p.getString("name"));
+						countyObj.setCitynm(citynm);
+						shushuWeatherDB.saveCounty(countyObj);
+						
+						Log.d("saveCounty", "县:"+p.getString("name"));
+					}
+				}
+				
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
 	
 	/*
-	 * 解析处理服务器返回的城市列表信息
+	 * 解析处理服务器返回的市列表信息
 	 * 
 	 * */
 	public synchronized static boolean handleCityResponse(ShushuWeatherDB shushuWeatherDB,String response){
@@ -27,27 +79,71 @@ public class Utility {
 			JSONObject jsonObject = JSON.parseObject(response);
 			
 			//判断json数据是否成功
-			if(jsonObject.getInteger("success")==1)
+			if(jsonObject.getInteger("status")==1)
 			{
-				JSONObject results = JSON.parseObject(jsonObject.getString("result"));
+				JSONArray results = JSON.parseArray(jsonObject.getString("districts"));
+				
+				JSONObject result2 = JSON.parseObject((results.get(0)).toString());
+				
+				String provincenm = result2.getString("name");//省名称
+				
+				JSONArray citys = JSON.parseArray(result2.getString("districts"));
 
-				for(int i=1;i<=results.size();i++)
+				for(Object city:citys)
 				{
-					JSONObject res = JSON.parseObject(results.getString(""+i));
-					if(res!=null)
+					if(city!=null)
 					{
-						City city = new City();
-						city.setCityid(res.getString("cityid"));
-						city.setCitynm(res.getString("citynm"));
-						city.setCityno(res.getString("cityno"));
-						city.setWeaid(res.getString("weaid"));
-						city.setProvince(res.getString("area_1"));
-						city.setMunicipality(res.getString("area_2"));
-						city.setCounty(res.getString("area_3"));
+						JSONObject c = (JSONObject)city;
+						City cityObj = new City();
+						cityObj.setCitynm(c.getString("name"));
+						cityObj.setProvincenm(provincenm);
+						shushuWeatherDB.saveCity(cityObj);
 						
-						shushuWeatherDB.saveCity(city);
+						Log.d("saveCity", "市:"+c.getString("name"));
+					}
+				}
+				
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	/*
+	 * 解析处理服务器返回的城市列表信息-新
+	 * 
+	 * */
+	public synchronized static boolean handleProvinceResponse(ShushuWeatherDB shushuWeatherDB,String response){
+		if(!TextUtils.isEmpty(response))
+		{
+			JSONObject jsonObject = JSON.parseObject(response);
+			
+			//判断json数据是否成功
+			if(jsonObject.getInteger("status")==1)
+			{
+				JSONArray results = JSON.parseArray(jsonObject.getString("districts"));
+				
+				JSONObject result2 = JSON.parseObject((results.get(0)).toString());
+				
+				JSONArray provinces = JSON.parseArray(result2.getString("districts"));
+
+				for(Object province:provinces)
+				{
+					if(province!=null)
+					{
+						JSONObject p = (JSONObject)province;
+						Province provinceObj = new Province();
+						provinceObj.setProvincenm(p.getString("name"));
 						
-						Log.d("saveCity", "cityid:"+res.getString("cityid"));
+						shushuWeatherDB.saveProvince(provinceObj);
+						
+						Log.d("saveProvince", "省:"+p.getString("name"));
 					}
 				}
 				
@@ -129,4 +225,19 @@ public class Utility {
 		
 		editor.commit();
 	}
+	
+	//链接里有中文需转码
+	public static String UrlTranslateToUTF(String address)
+	{
+		try
+		{
+			address = URLEncoder.encode(address, "utf-8");
+			
+			return address;
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			return "";
+			
+		}
+	}	
 }

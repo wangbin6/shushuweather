@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract.Presence;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +20,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class WeatherActivity extends Activity implements OnClickListener{
 	
@@ -33,7 +33,6 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private TextView currentDate;//显示当前日期
 	private Button switchCityBtn;//切换城市按钮
 	private Button refreshWeather;//更新天气按钮
-	private ShushuWeatherDB shushuWeatherDB;
 	private String weaid,county;
 	
 	@Override
@@ -56,7 +55,6 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		
 		switchCityBtn.setOnClickListener(this);
 		refreshWeather.setOnClickListener(this);
-		shushuWeatherDB = ShushuWeatherDB.getinstance(this);
 		
 		county = getIntent().getStringExtra("county");
 
@@ -66,8 +64,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			publishText.setText("同步中...");
 			weatherInfoLayout.setVisibility(View.INVISIBLE);
 			citynm.setVisibility(View.INVISIBLE);
-			weaid = shushuWeatherDB.getWeatherId(county);
-			queryWeatherCounty(weaid);
+			queryWeatherCounty(county);
 		}
 		else
 		{
@@ -88,8 +85,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			break;
 		case R.id.refresh_weather:
 			publishText.setText("同步中...");
-			//String weaid = shushuWeatherDB.getWeatherId(county);
-			queryWeatherCounty(weaid);
+			queryWeatherCounty(county);
 			break;
 		default:
 			break;
@@ -97,11 +93,12 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	}
 	
 	//通过县级城市名获取天气ID，在通过ID区获取天气
-	private void queryWeatherCounty(String weaid)
+	private void queryWeatherCounty(String county)
 	{
-		if(weaid!="")
+		if(county!="")
 		{
-			String address = "http://api.k780.com/?app=weather.today&weaid="+weaid+"&appkey=26776&sign=42d21df6df1c8068dbd225379b10ac98&format=json";
+			county = Utility.UrlTranslateToUTF(county);
+			String address = "http://api.k780.com/?app=weather.today&weaid="+county+"&appkey=26776&sign=42d21df6df1c8068dbd225379b10ac98&format=json";
 			
 			queryFromServer(address);
 		}
@@ -130,7 +127,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			@Override
 			public void onError(Exception e) {
 				// TODO Auto-generated method stub
-				
+				Toast.makeText(WeatherActivity.this, "获取天气信息失败！", Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
@@ -140,7 +137,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	{
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
-		weaid = prefs.getString("weaid", "");
+		county = prefs.getString("county", "");
 		citynm.setText(prefs.getString("citynm", ""));
 		tempLow.setText(prefs.getString("temp_low", "")+"℃");
 		tempHigh.setText(prefs.getString("temp_high", "")+"℃");

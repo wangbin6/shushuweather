@@ -16,12 +16,7 @@
             android:layout_centerInParent="true"
             android:textColor="#fff"
             android:textSize="24sp"/>
-        
-        <Button 
-            android:id="@+id/update_city_btn"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="更新城市列表"/>
+
     </RelativeLayout>
     
     <ListView 
