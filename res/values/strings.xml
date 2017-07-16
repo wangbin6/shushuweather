@@ -3,5 +3,5 @@
 
     <string name="app_name">舒舒天气</string>
     <string name="hello_world">Hello world!</string>
-
+	<string name="version">1.0.170716</string>
 </resources>

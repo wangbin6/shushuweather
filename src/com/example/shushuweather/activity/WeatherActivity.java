@@ -8,6 +8,8 @@ import com.example.shushuweather.utils.HttpUtil;
 import com.example.shushuweather.utils.Utility;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -33,6 +35,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private TextView currentDate;//显示当前日期
 	private Button switchCityBtn;//切换城市按钮
 	private Button refreshWeather;//更新天气按钮
+	private Button infobtn;//软件相关
 	private String county;
 	
 	@Override
@@ -43,6 +46,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_layout);
 		
+		//初始化各控件
 		weatherInfoLayout = (LinearLayout)findViewById(R.id.weather_info_layout);
 		citynm = (TextView)findViewById(R.id.city_name);
 		publishText = (TextView)findViewById(R.id.publish_text);
@@ -52,9 +56,12 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		currentDate = (TextView)findViewById(R.id.current_date);
 		switchCityBtn = (Button)findViewById(R.id.switch_city);
 		refreshWeather = (Button)findViewById(R.id.refresh_weather);
+		infobtn = (Button)findViewById(R.id.infobtn);
 		
+		//绑定点击事件
 		switchCityBtn.setOnClickListener(this);
 		refreshWeather.setOnClickListener(this);
+		infobtn.setOnClickListener(this);
 		
 		county = getIntent().getStringExtra("county");
 
@@ -95,9 +102,21 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			publishText.setText("同步中...");
 			queryWeatherCounty(county);
 			break;
+		case R.id.infobtn:
+			showAppInfoDialog();
 		default:
 			break;
 		}
+	}
+	
+	//显示软件相关弹出框
+	private void showAppInfoDialog()
+	{
+		AlertDialog.Builder builder = new Builder(this);
+		builder.setTitle("舒舒天气");
+		builder.setIcon(R.drawable.info);
+		builder.setMessage("《舒舒天气》"+" 版本号"+R.string.version);
+		builder.show();
 	}
 	
 	//通过县级城市名获取天气ID，在通过ID区获取天气

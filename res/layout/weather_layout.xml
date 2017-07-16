@@ -110,5 +110,22 @@
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
-
+	
+    <!-- 底部导航栏 -->
+    <RelativeLayout 
+        android:layout_height="50dp"
+        android:layout_width="match_parent"
+        android:background="#484E61"
+        android:layout_alignParentBottom="true">
+        
+        <Button 
+            android:layout_height="30dp"
+            android:layout_width="30dp"
+            android:id="@+id/infobtn"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/info"/>
+        
+    </RelativeLayout>
 </LinearLayout>
