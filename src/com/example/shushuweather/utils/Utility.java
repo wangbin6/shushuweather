@@ -263,7 +263,7 @@ public class Utility {
 	//储存天气到本地
 	public static void saveWeatherInfo(Context context,String hum,String vis,String pres,String pcpn,String fl,String tmp,String txt,String sc,String spd,String deg,String dir,String county)
 	{
-		SimpleDateFormat sdf = new SimpleDateFormat("H时m分",Locale.CHINA);
+		SimpleDateFormat sdf = new SimpleDateFormat("H时mm分",Locale.CHINA);
 		SimpleDateFormat date = new SimpleDateFormat("yyyy年MM月dd日",Locale.CHINA);
 		SimpleDateFormat week = new SimpleDateFormat("EEEE",Locale.CHINA);
 		
