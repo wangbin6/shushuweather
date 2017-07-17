@@ -51,11 +51,15 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 	private Province provinceSeletced;//选中的省
 	private City citySelected;//选中的市
 	private County countySelected;//选中的区县
+	private boolean networkavilable = false;//网络不可用
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		
+		//查看网络状态
+		networkavilable = Utility.checkNetworkAvailable(ChooseAreaActivity.this);
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
@@ -152,7 +156,14 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 		}
 		else
 		{
-			queryCountyFromServer();//从服务器获取区县信息
+			if(networkavilable)
+			{
+				queryCountyFromServer();//从服务器获取区县信息
+			}
+			else
+			{
+				Toast.makeText(this, "小主~网络不可用哟~", Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 	
@@ -177,7 +188,14 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 		}
 		else
 		{
-			queryCityFromServer();
+			if(networkavilable)
+			{
+				queryCityFromServer();
+			}
+			else
+			{
+				Toast.makeText(this, "小主~网络不可用哟~", Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 	
@@ -202,7 +220,14 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 		}
 		else
 		{
-			queryProvincesfromServer();
+			if(networkavilable)
+			{
+				queryProvincesfromServer();
+			}
+			else
+			{
+				Toast.makeText(this, "小主~网络不可用哟~", Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 

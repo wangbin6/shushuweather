@@ -16,10 +16,15 @@ import com.example.shushuweather.models.Province;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
-
+/**
+ * 公共函数类
+ * @author Administrator
+ * */
 public class Utility {
 
 	/*
@@ -302,5 +307,36 @@ public class Utility {
 			return "";
 			
 		}
-	}	
+	}
+	
+	//判断网络可用否-可用返回true
+	public static boolean checkNetworkAvailable(Context context)
+	{
+		ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		
+		if(connectivity!=null)
+		{
+			NetworkInfo networkinfo = connectivity.getActiveNetworkInfo();
+			
+			if(networkinfo!=null && networkinfo.isConnected())
+			{
+				if(networkinfo.getState()==NetworkInfo.State.CONNECTED)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

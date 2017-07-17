@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import android.content.Context;
 import android.util.Log;
 
 /*
@@ -21,6 +22,7 @@ public class HttpUtil {
 			public void run() {
 				// TODO Auto-generated method stub
 				HttpURLConnection connection = null;
+				
 				try {
 					URL url = new URL(address);
 					connection = (HttpURLConnection)url.openConnection();
