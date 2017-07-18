@@ -9,14 +9,18 @@ import com.example.shushuweather.db.ShushuWeatherDB;
 import com.example.shushuweather.models.City;
 import com.example.shushuweather.models.County;
 import com.example.shushuweather.models.Province;
+import com.example.shushuweather.receiver.NetworkChangedReceiver;
 import com.example.shushuweather.utils.HttpCallbackListener;
 import com.example.shushuweather.utils.HttpUtil;
+import com.example.shushuweather.utils.MyData;
 import com.example.shushuweather.utils.Utility;
 import com.example.shushuweather.R;
 import android.app.Activity;
+import android.app.Application;
 import android.app.DownloadManager.Query;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -52,14 +56,27 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 	private City citySelected;//选中的市
 	private County countySelected;//选中的区县
 	private boolean networkavilable = false;//网络不可用
-
+	private MyData mydata;
+	private NetworkChangedReceiver mNetworkChangedReceiver;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState){
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		mydata = (MyData)getApplication();
+		Log.d("getApplication", mydata.getNetworkIsOk()+"");
+		//注册网络监听
+		mNetworkChangedReceiver = new NetworkChangedReceiver();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+		filter.addAction("android.net.wifi.WIFI_STATE_CHANGED");
+		filter.addAction("android.net.wifi.STATE_CHANGE");
+		registerReceiver(mNetworkChangedReceiver, filter);
 		
 		//查看网络状态
-		networkavilable = Utility.checkNetworkAvailable(ChooseAreaActivity.this);
+		//networkavilable = Utility.checkNetworkAvailable(ChooseAreaActivity.this);
+		
+		networkavilable = mydata.getNetworkIsOk();
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
@@ -120,7 +137,21 @@ public class ChooseAreaActivity extends Activity implements OnClickListener{
 			}
 		});
 		
-		queryProvinces();//第一次加载省份数据
+		if(networkavilable)
+		{
+			queryProvinces();//第一次加载省份数据
+		}
+		else
+		{
+			Toast.makeText(this, "网络不可用哦~", Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		unregisterReceiver(mNetworkChangedReceiver);
 	}
 	
 	@Override

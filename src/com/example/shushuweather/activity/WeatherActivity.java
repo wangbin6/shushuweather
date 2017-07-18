@@ -2,9 +2,11 @@ package com.example.shushuweather.activity;
 
 import com.example.shushuweather.R;
 import com.example.shushuweather.db.ShushuWeatherDB;
+import com.example.shushuweather.receiver.NetworkChangedReceiver;
 import com.example.shushuweather.service.AutoUpdateWeather;
 import com.example.shushuweather.utils.HttpCallbackListener;
 import com.example.shushuweather.utils.HttpUtil;
+import com.example.shushuweather.utils.MyData;
 import com.example.shushuweather.utils.Utility;
 
 import android.app.Activity;
@@ -12,6 +14,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -38,12 +41,15 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private Button refreshWeather;//更新天气按钮
 	private Button infobtn;//软件相关
 	private String county;
+	private boolean networkavilable=false;//网络是否可用,默认不可用
+	private MyData mydata;
+	private NetworkChangedReceiver mNetworkChangedReceiver;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		
+		mydata = (MyData)getApplication();
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.weather_layout);
 		
@@ -58,6 +64,18 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		switchCityBtn = (Button)findViewById(R.id.switch_city);
 		refreshWeather = (Button)findViewById(R.id.refresh_weather);
 		infobtn = (Button)findViewById(R.id.infobtn);
+		
+		//监听网络
+		mNetworkChangedReceiver = new NetworkChangedReceiver();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+		filter.addAction("android.net.wifi.WIFI_STATE_CHANGED");
+		filter.addAction("android.net.wifi.STATE_CHANGE");
+		registerReceiver(mNetworkChangedReceiver, filter);
+		
+		//检测网络
+		//networkavilable = Utility.checkNetworkAvailable(WeatherActivity.this);
+		networkavilable = mydata.getNetworkIsOk();
 		
 		//绑定点击事件
 		switchCityBtn.setOnClickListener(this);
@@ -87,6 +105,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		super.onDestroy();
 		Intent i = new Intent(WeatherActivity.this,AutoUpdateWeather.class);
 		stopService(i);
+		unregisterReceiver(mNetworkChangedReceiver);
 	}
 	
 	@Override
@@ -123,6 +142,13 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	//通过县级城市名获取天气ID，在通过ID区获取天气
 	private void queryWeatherCounty(String county)
 	{
+		if(!networkavilable)
+		{
+			Toast.makeText(this, "小主~网络不可用哟~", Toast.LENGTH_SHORT).show();
+			publishText.setText("网络不可用...");
+			return;
+		}
+		
 		if(county!="")
 		{
 			county = Utility.UrlTranslateToUTF(county);
@@ -157,7 +183,14 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			@Override
 			public void onError(Exception e) {
 				// TODO Auto-generated method stub
-				Toast.makeText(WeatherActivity.this, "获取天气信息失败！", Toast.LENGTH_SHORT).show();
+				runOnUiThread(new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						Toast.makeText(WeatherActivity.this, "获取天气信息失败！", Toast.LENGTH_SHORT).show();
+					}
+				});
 			}
 		});
 	}

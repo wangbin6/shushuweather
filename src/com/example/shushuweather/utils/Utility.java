@@ -322,20 +322,24 @@ public class Utility {
 			{
 				if(networkinfo.getState()==NetworkInfo.State.CONNECTED)
 				{
+					Log.d("Network", "网络可用");
 					return true;
 				}
 				else
 				{
+					Log.d("Network", "网络不可用");
 					return false;
 				}
 			}
 			else
 			{
+				Log.d("Network", "网络不可用");
 				return false;
 			}
 		}
 		else
 		{
+			Log.d("Network", "网络不可用");
 			return false;
 		}
 	}

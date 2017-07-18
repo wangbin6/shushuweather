@@ -9,8 +9,10 @@
         android:targetSdkVersion="19" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
     <application
+        android:name="com.example.shushuweather.utils.MyData"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -27,6 +29,7 @@
         <activity android:name="com.example.shushuweather.activity.WeatherActivity"></activity>
         <service android:name="com.example.shushuweather.service.AutoUpdateWeather"/>
         <receiver android:name="com.example.shushuweather.receiver.AutoUpdateReceiver"/>
+        <receiver android:name="com.example.shushuweather.receiver.NetworkChangedReceiver"/>
     </application>
 
 </manifest>

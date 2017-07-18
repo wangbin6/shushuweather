@@ -15,7 +15,8 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 /**
- * @deprecated 自动更新天气服务
+ * 自动更新天气服务
+ * @author WangBin
  * */
 public class AutoUpdateWeather extends Service {
 
