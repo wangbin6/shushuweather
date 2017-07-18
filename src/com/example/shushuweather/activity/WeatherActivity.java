@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +41,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private Button switchCityBtn;//切换城市按钮
 	private Button refreshWeather;//更新天气按钮
 	private Button infobtn;//软件相关
+	private ImageView wicon;//天气图标
 	private String county;
 	private boolean networkavilable=false;//网络是否可用,默认不可用
 	private MyData mydata;
@@ -64,6 +66,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		switchCityBtn = (Button)findViewById(R.id.switch_city);
 		refreshWeather = (Button)findViewById(R.id.refresh_weather);
 		infobtn = (Button)findViewById(R.id.infobtn);
+		wicon = (ImageView)findViewById(R.id.wicon);
 		
 		//监听网络
 		mNetworkChangedReceiver = new NetworkChangedReceiver();
@@ -134,7 +137,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	{
 		AlertDialog.Builder builder = new Builder(this);
 		builder.setTitle("舒舒天气");
-		builder.setIcon(R.drawable.info);
+		//builder.setIcon(R.drawable.info);
 		builder.setMessage("《舒舒天气》"+" 版本号"+R.string.version);
 		builder.show();
 	}
@@ -199,16 +202,45 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private void showWeather()
 	{
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
+		String txt = prefs.getString("txt", "");//多云，晴，etc
 		county = prefs.getString("county", "");
 		citynm.setText(county);
 		tempLow.setText(prefs.getString("tmp", "")+"℃");
 		tempHigh.setText(prefs.getString("dir", ""));
 		currentDate.setText(prefs.getString("date", "")+" "+prefs.getString("week", ""));
-		weatherDespText.setText(prefs.getString("txt", ""));
+		weatherDespText.setText(txt);
 		publishText.setText("今天"+prefs.getString("publishtime", "")+"发布");
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		citynm.setVisibility(View.VISIBLE);
+		Log.d("txt", txt);
+		if(txt.indexOf("多云")!=-1)
+		{
+			wicon.setImageDrawable(getResources().getDrawable(R.drawable.duoyun));
+		}
+		else if(txt.indexOf("雷阵雨")!=-1)
+		{
+			wicon.setImageDrawable(getResources().getDrawable(R.drawable.leizhenyu));
+		}
+		else if(txt.indexOf("晴")!=-1)
+		{
+			wicon.setImageDrawable(getResources().getDrawable(R.drawable.qing));
+		}
+		else if(txt.indexOf("雪")!=-1)
+		{
+			wicon.setImageDrawable(getResources().getDrawable(R.drawable.xue));
+		}
+		else if(txt.indexOf("阴")!=-1)
+		{
+			wicon.setImageDrawable(getResources().getDrawable(R.drawable.yin));
+		}
+		else if(txt.indexOf("雨")!=-1)
+		{
+			wicon.setImageDrawable(getResources().getDrawable(R.drawable.yu));
+		}
+		else
+		{
+			wicon.setImageDrawable(getResources().getDrawable(R.drawable.undefined));
+		}
 		
 		Intent i = new Intent(WeatherActivity.this,AutoUpdateWeather.class);
 		startService(i);
