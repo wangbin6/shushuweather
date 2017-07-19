@@ -62,7 +62,9 @@
             <ImageView 
                 android:id="@+id/wicon"
                 android:layout_width="100dp"
-                android:layout_height="100dp"/>
+                android:layout_height="100dp"
+                android:scaleType="fitCenter"
+                android:layout_gravity="center"/>
             
             <TextView 
                 android:id="@+id/current_date"

@@ -138,7 +138,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		AlertDialog.Builder builder = new Builder(this);
 		builder.setTitle("舒舒天气");
 		//builder.setIcon(R.drawable.info);
-		builder.setMessage("《舒舒天气》"+" 版本号"+R.string.version);
+		builder.setMessage("版本号:"+getResources().getString(R.string.version));
 		builder.show();
 	}
 	
