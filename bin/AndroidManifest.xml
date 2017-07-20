@@ -27,6 +27,8 @@
             </intent-filter>
         </activity>
         <activity android:name="com.example.shushuweather.activity.WeatherActivity"></activity>
+        <activity android:name="com.example.shushuweather.activity.SetWeatherActivity"></activity>
+        
         <service android:name="com.example.shushuweather.service.AutoUpdateWeather"/>
         <receiver android:name="com.example.shushuweather.receiver.AutoUpdateReceiver"/>
         <receiver android:name="com.example.shushuweather.receiver.NetworkChangedReceiver"/>

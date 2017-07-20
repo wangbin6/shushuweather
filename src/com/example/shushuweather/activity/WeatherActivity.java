@@ -41,6 +41,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private Button switchCityBtn;//切换城市按钮
 	private Button refreshWeather;//更新天气按钮
 	private Button infobtn;//软件相关
+	private Button set;//设置
 	private ImageView wicon;//天气图标
 	private String county;
 	private boolean networkavilable=false;//网络是否可用,默认不可用
@@ -67,6 +68,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		refreshWeather = (Button)findViewById(R.id.refresh_weather);
 		infobtn = (Button)findViewById(R.id.infobtn);
 		wicon = (ImageView)findViewById(R.id.wicon);
+		set = (Button)findViewById(R.id.setbtn);
 		
 		//监听网络
 		mNetworkChangedReceiver = new NetworkChangedReceiver();
@@ -80,10 +82,11 @@ public class WeatherActivity extends Activity implements OnClickListener{
 		//networkavilable = Utility.checkNetworkAvailable(WeatherActivity.this);
 		networkavilable = mydata.getNetworkIsOk();
 		
-		//绑定点击事件
+		//按钮绑定点击事件
 		switchCityBtn.setOnClickListener(this);
 		refreshWeather.setOnClickListener(this);
 		infobtn.setOnClickListener(this);
+		set.setOnClickListener(this);
 		
 		county = getIntent().getStringExtra("county");
 
@@ -127,6 +130,11 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			break;
 		case R.id.infobtn:
 			showAppInfoDialog();
+			break;
+		case R.id.setbtn:
+			Intent intentSet = new Intent(this,SetWeatherActivity.class);
+			startActivity(intentSet);
+			break;
 		default:
 			break;
 		}

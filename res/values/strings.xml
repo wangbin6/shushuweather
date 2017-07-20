@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">舒舒天气</string>
-    <string name="hello_world">Hello world!</string>
-	<string name="version">1.7.19</string>
+    <string name="app_name">舒舒天气</string><!-- APP名称 -->
+	<string name="version">1.0.1707</string><!-- 版本号 -->
+	<string name="setText">设置</string><!-- 设置页面标题文字 -->
 </resources>

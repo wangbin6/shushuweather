@@ -7,7 +7,7 @@
     <RelativeLayout 
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#484E61">
+        android:background="#000000">
         
         <Button 
             android:id="@+id/switch_city"
@@ -122,8 +122,17 @@
     <RelativeLayout 
         android:layout_height="50dp"
         android:layout_width="match_parent"
-        android:background="#484E61"
+        android:background="#000000"
         android:layout_alignParentBottom="true">
+        
+        <Button 
+            android:layout_height="30dp"
+            android:layout_width="30dp"
+            android:id="@+id/setbtn"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/infobtn"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/set"/>
         
         <Button 
             android:layout_height="30dp"
