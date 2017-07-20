@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import com.alibaba.fastjson.JSON;
@@ -14,6 +15,8 @@ import com.example.shushuweather.models.City;
 import com.example.shushuweather.models.County;
 import com.example.shushuweather.models.Province;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -342,5 +345,34 @@ public class Utility {
 			Log.d("Network", "网络不可用");
 			return false;
 		}
+	}
+	
+	/**
+	 * 判断某个服务是否在运行，是返回true，反之返回false
+	 * Service-->com.android.controlAddFunctions.PhoneService
+	 * @author WangBin
+	 */
+	public static boolean ServiceIsRun(Context context,String serviceName)
+	{
+		boolean isWork = false;
+		ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		
+		List<RunningServiceInfo> list = manager.getRunningServices(40);
+		
+		if(list.size()<=0)
+		{
+			return false;
+		}
+		
+		for (int i=0;i<list.size();i++)
+		{
+			String name = list.get(i).service.getClassName().toString();
+			if(name.equals(serviceName))
+			{
+				return true;
+			}
+		}
+		
+		return isWork;
 	}
 }

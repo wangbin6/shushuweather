@@ -46,7 +46,7 @@ public class AutoUpdateWeather extends Service {
 			}}).start();
 			
 			AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
-			int time = 60*60*8*1000;//10*1000;//60*60*8*1000;
+			int time = 60*60*8*1000;//10*1000;//60*60*8*1000;8小时更新一次
 			long triggerAtTime = SystemClock.elapsedRealtime()+time;
 			Intent i = new Intent(this,AutoUpdateReceiver.class);
 			PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);

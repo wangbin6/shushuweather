@@ -250,7 +250,11 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			wicon.setImageDrawable(getResources().getDrawable(R.drawable.undefined));
 		}
 		
-		Intent i = new Intent(WeatherActivity.this,AutoUpdateWeather.class);
-		startService(i);
+		//判断是否开启自动更新服务
+		if(prefs.getBoolean("autorefresh", false))
+		{
+			Intent i = new Intent(WeatherActivity.this,AutoUpdateWeather.class);
+			startService(i);
+		}
 	}
 }
