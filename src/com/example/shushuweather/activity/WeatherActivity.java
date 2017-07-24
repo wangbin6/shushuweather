@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -47,6 +48,7 @@ public class WeatherActivity extends Activity implements OnClickListener{
 	private boolean networkavilable=false;//网络是否可用,默认不可用
 	private MyData mydata;
 	private NetworkChangedReceiver mNetworkChangedReceiver;
+	private float yDown;//手指点击屏幕时的y坐标
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +105,26 @@ public class WeatherActivity extends Activity implements OnClickListener{
 			//没有则直接显示本地天气
 			showWeather();
 		}
+	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		// TODO Auto-generated method stub
+		Log.d("onTouchEvent", event.toString());
+		if(event.getAction()==MotionEvent.ACTION_DOWN)
+		{
+			yDown = event.getRawY();
+		}
+		else if(event.getAction()==MotionEvent.ACTION_UP)
+		{
+			if(event.getRawY()-yDown>100)
+			{
+				publishText.setText("同步中...");
+				Toast.makeText(this, "正在更新天气信息！", Toast.LENGTH_SHORT).show();
+				queryWeatherCounty(county);
+			}
+		}
+		return super.onTouchEvent(event);
 	}
 	
 	@Override
